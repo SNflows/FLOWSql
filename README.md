@@ -10,7 +10,7 @@ Go to [release](https://github.com/SNflows/FLOWSql/releases) page and download t
 ## Setup
 You can straight-away run the binary. 
 
-If you want to make is availabe system-wide, run these in your teminal.
+If you want to make it availabe system-wide, run these in your terminal.
 
 ```bash
 sudo mv path/to/flowsql-download-binary  /usr/bin/flowsql
