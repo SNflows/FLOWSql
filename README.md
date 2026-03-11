@@ -1,6 +1,6 @@
 # FLOWSql - FLOWS SQL query commandline client
 
-This repo holds the binary files for FLOWSql.
+This repo hold the binary files for FLOWSql.
 
 ## Download
 Go to [release](https://github.com/SNflows/FLOWSql/releases) page and download the binary for your OS and architecture.
