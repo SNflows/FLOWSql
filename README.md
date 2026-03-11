@@ -13,8 +13,8 @@ You can straight-away run the binary.
 If you want to make it availabe system-wide, run these in your terminal.
 
 ```bash
-sudo mv path/to/flowsql-download-binary  /usr/bin/flowsql
-sudo chmod 755 /usr/bin/flowsql
+sudo mv path/to/flowsql-download-binary  /usr/local/bin/flowsql
+sudo chmod 755 /usr/local/bin/flowsql
 ```
 
 You will need api key for the FLOWS and ask the FLOWS admins to enable you as database user. Then set the `FLOWS_API_KEY=<key>` in your shell environment.
