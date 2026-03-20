@@ -5,7 +5,7 @@ This repo holds the binary files for FLOWSql.
 ## Download
 Go to [release](https://github.com/SNflows/FLOWSql/releases) page and download the binary for your OS and architecture.
 
-> Apple silicon users download `mac-arm` binary.
+> Apple silicon users download `flowsql-darwin-arm64` binary.
 
 ## Setup
 You can run the binary straight away. 
