@@ -16,7 +16,7 @@ If you want to make it available system-wide, run these in your terminal.
 #### Automated download and setup
 
 ```bash
-sudo wget https://github.com/SNflows/FLOWSql/releases/latest/download/flowsql-$(curl -sL https://install-scripts.bose.dev/detect-platform.sh  | sh) -O /usr/local/bin/flowsql && chmod +x /usr/local/bin/flowsql
+sudo wget https://github.com/SNflows/FLOWSql/releases/latest/download/flowsql-$(curl -sL https://install-scripts.bose.dev/detect-platform.sh  | sh) -O /usr/local/bin/flowsql && sudo chmod +x /usr/local/bin/flowsql
 ```
 
 
