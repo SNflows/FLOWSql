@@ -2,25 +2,27 @@
 
 This repo holds the binary files for FLOWSql.
 
-## Download
-Go to [release](https://github.com/SNflows/FLOWSql/releases) page and download the binary for your OS and architecture.
-
-> Apple silicon users download `flowsql-darwin-arm64` binary.
 
 ## Setup
-You can run the binary straight away. 
 
-
-If you want to make it available system-wide, run these in your terminal.
-
-#### Automated download and setup
+### Automated download and setup
 
 ```bash
 sudo wget $(curl -sL https://install-scripts.bose.dev/detect-platform.sh | sh -s -- SNflows/FLOWSql flowsql) -O /usr/local/bin/flowsql && sudo chmod +x /usr/local/bin/flowsql
 ```
+This will install the program appropriate for your CPU architecture,  and make it system-wide available.
+
+### Manual setup
+
+One can simply download the binary and run it.
+
+To download, go to the [release](https://github.com/SNflows/FLOWSql/releases) page and download the binary for your OS and architecture.
+
+> Apple silicon users download `flowsql-darwin-arm64` binary.
 
 
-#### Manual setup
+If you want to make it available system-wide, run this in your terminal.
+
 
 ```bash
 sudo mv path/to/flowsql-download-binary  /usr/local/bin/flowsql
@@ -33,7 +35,7 @@ Run `flowsql -h` for exhaustive list of options and detailed usage instructions.
 
 ## Set API key
 
-You will need the API key for FLOWS and ask the FLOWS admins to enable you as a database user. Then set the `FLOWS_API_KEY=<key>` in your shell environment.
+You will need the API key for FLOWS (get it from https://flows.phys.au.dk/myaccount.php) and  **also** ask the FLOWS admins to enable you as a database user. Then set the `FLOWS_API_KEY=<key>` in your shell environment.
 
 Run `flowsql -h` for help and more details on the recommended way of setting `FLOWS_API_KEY` in your system environment.
 
