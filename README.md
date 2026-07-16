@@ -2,6 +2,8 @@
 
 This repo holds the binary files for FLOWSql.
 
+Read the full [usage documentation here](Documentation.md)
+
 
 ## Setup
 
