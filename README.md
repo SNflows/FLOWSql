@@ -13,7 +13,7 @@ This repo holds the binary files for FLOWSql.
 ```bash
 sudo wget $(curl -sL https://install-scripts.bose.dev/detect-platform.sh | sh -s -- SNflows/FLOWSql flowsql) -O /usr/local/bin/flowsql && sudo chmod +x /usr/local/bin/flowsql
 ```
-This will install the program appropriate for your CPU architecture,  and make it system-wide available.
+This will install the program appropriate for your CPU architecture, and make it system-wide available.
 
 ### Manual setup
 
@@ -107,7 +107,7 @@ If the API rejects the query, the error text from the server is printed and the 
 flowsql --admin -q "DELETE FROM refcat2 WHERE starid = 500001234500000"
 ```
 
-`--admin` asks the server to run the query with elevated privileges. **This only works if your API key already has admin rights** on the SQL API — the flag by itself grants nothing. Admin mode is required for write operations and is also useful for long-running `SELECT`s, since it bypasses the server-side query timeout.
+`--admin` asks the server to run the query with elevated privileges. **This only works if your API key already has admin rights** on the SQL API — the flag by itself grants nothing. Admin mode is required for write operations, accessing some restricted tables, and is also useful for long-running `SELECT`s, since it bypasses the server-side query timeout.
 
 Admin mode is **not** permitted together with `--askme`; if you combine them, `flowsql` warns you and silently drops back to non-admin.
 
@@ -166,7 +166,7 @@ Results are ordered by observation time and then filter.
 
 ### Reference catalog commands
 
-The FLOWS database stores reference stars in `refcat2`. These commands operate on all stars within a **24 arcminute radius** of the named target's coordinates.
+The FLOWS database stores reference stars in `refcat2`. These commands operate on all stars within a **24 arcminute radius** (same as website) of the named target's coordinates.
 
 **List catalog stars** — includes each star's angular distance from the target, sorted nearest first:
 
@@ -200,7 +200,9 @@ Requires `--admin`. Reads a CSV file and inserts its rows into `refcat2` as cust
 flowsql --admin --catalog-add mystars.csv
 ```
 
-The file's header line names the columns present; it may optionally begin with `#`. `ra` and `decl` are mandatory, every other column is optional, and any missing or empty value is inserted as `NULL`. All values must be numeric.
+The file's header line names the columns present; it may optionally begin with `#`. `ra` and `decl` are mandatory, every other column is optional, and any missing or empty value is inserted as `NULL`. All values must be numeric. 
+
+As a shortcut, you can use `flowsql --catalog-list 2021abc --csv cat.csv` to dump a CSV and edit it, keeping only the required columns, and feed it back to `--catalog-add` input.
 
 Allowed column names:
 
@@ -235,12 +237,12 @@ Example file:
 
 A few details worth knowing:
 
-- **`starid` is generated for you.** Any `starid` or `distance` column in the file is ignored — this means the output of `--catalog-list` can be fed back into `--catalog-add` directly. Generated IDs take the form `5` + a 12-digit Unix timestamp + a 5-digit serial, which places them in the custom-star range that `--catalog-filter-custom` selects.
-- Blank lines are skipped; a maximum of 100,000 rows (serials `0`–`99999`) can be added in one invocation.
-- Column names keep their case (so `J_mag` is inserted as `J_mag`, not `j_mag`).
-- If the server reports that a column of `refcat2` does not exist, `flowsql` prints the allowed column list above — that error almost always means a typo in your header.
+- **`starid` is generated for you.** Any `starid` or `distance` column in the file is ignored — this means the output of `--catalog-list` can be fed back into `--catalog-add` directly. Generated IDs start with `500...` followed by 15 more digits containing timestamp and a 5-digit serial number.
+- Blank lines are skipped; a maximum of 100,000 rows can be added in one invocation.
+- Column names are case-sensitive (so `J_mag`, not `j_mag`).
+- If there is any mismatched column name, the query would fail and `flowsql` would report the error with a list of possible names — that error almost always means a typo in your column header.
 
-The whole file becomes a single `INSERT`, so it either all lands or none of it does. Validation happens locally first: a non-numeric value or a missing `ra`/`decl` fails with the offending line number before anything is sent.
+The whole file becomes a single query, so it either all lands or none of it does. Validation happens locally first: a non-numeric value or a missing `ra`/`decl` fails with the offending line number before anything is sent.
 
 ---
 
@@ -259,9 +261,9 @@ flowsql --askme 'list all files with filter H, with exposure time less than 500 
 Things to keep in mind:
 
 - The generated SQL is echoed above the results so you can check it. With `--json` the echo is suppressed, keeping the output valid JSON.
-- **`--admin` is disabled for AI queries** — you will get a notice and the query runs unprivileged.
+- **`--admin` is force disabled for AI queries** — you will get a notice and the query runs unprivileged.
 - The request can take up to three minutes.
-- If you see an authorization error from the AI server, run `flowsql --upgrade`; the AI credentials ship with the binary and an old build may be using a retired key.
+- If you see an authorization error from the AI server, run `flowsql --upgrade`; the AI credentials may become outdated for the old build.
 
 Treat the generated SQL as a draft. It is good at exploratory questions, but read the echoed query before trusting a result you intend to publish.
 
