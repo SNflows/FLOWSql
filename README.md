@@ -248,7 +248,7 @@ The whole file becomes a single query, so it either all lands or none of it does
 
 ## Asking questions in plain English
 
-`--askme` sends a plain-text question to the FLOWSql AI service, which turns it into SQL. The generated SQL is printed and then executed:
+`--askme` sends a plain-text question to the FLOWSql AI service, which turns it into SQL by knowing the table schema, columns, and their physical meaning and interconnections. The generated SQL is printed and then executed:
 
 ```bash
 flowsql --askme "list all ecsv files for all objects in flows project. also list filter. limit to 10 rows."
@@ -261,8 +261,9 @@ flowsql --askme 'list all files with filter H, with exposure time less than 500 
 Things to keep in mind:
 
 - The generated SQL is echoed above the results so you can check it. With `--json` the echo is suppressed, keeping the output valid JSON.
-- **`--admin` is force disabled for AI queries** — you will get a notice and the query runs unprivileged.
-- The request can take up to three minutes.
+- **`--admin` is force disabled for AI queries** — you will get a notice, and the query runs unprivileged. This is a security measure and deliberate design choice.
+- So any write operations will print the generated query, but will fail to execute in `--askme` mode. You need to run the query manually with the `--admin` flag on.
+- The request can take several seconds to a minute (GPU limit).
 - If you see an authorization error from the AI server, run `flowsql --upgrade`; the AI credentials may become outdated for the old build.
 
 Treat the generated SQL as a draft. It is good at exploratory questions, but read the echoed query before trusting a result you intend to publish.
