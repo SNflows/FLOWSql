@@ -92,7 +92,7 @@ flowsql --query "SELECT * FROM sites"
 flowsql -q "SELECT * FROM targets LIMIT 10"
 ```
 
-The query string is passed to the API as-is, so any SQL the server accepts will work — including joins, aggregates, and PostgreSQL-specific functions. The FLOWS database is PostgreSQL with the [Q3C](https://github.com/segasai/q3c) extension available, so spatial functions such as `q3c_radial_query` and `q3c_dist` can be used in your own queries too.
+The SQL query is passed to the API server, and supports standard SQL including joins, aggregates, and PostgreSQL-specific functions. The FLOWS database is PostgreSQL with the [Q3C](https://github.com/segasai/q3c) extension available, so spatial functions such as `q3c_radial_query` and `q3c_dist` can be used in your own queries too.
 
 `flowsql` distinguishes two kinds of results automatically:
 
@@ -107,7 +107,7 @@ If the API rejects the query, the error text from the server is printed and the 
 flowsql --admin -q "DELETE FROM refcat2 WHERE starid = 500001234500000"
 ```
 
-`--admin` asks the server to run the query with elevated privileges. **This only works if your API key already has admin rights** on the SQL API — the flag by itself grants nothing. Admin mode is required for write operations, accessing some restricted tables, and is also useful for long-running `SELECT`s, since it bypasses the server-side query timeout.
+`--admin` asks the server to run the query with elevated privileges. **This only works if your API key already has admin rights** on the SQL API — the flag by itself grants nothing. Admin mode is required for write operations, accessing some restricted tables, listing longer than 10000 rows, and is also useful for long-running `SELECT`s, since it bypasses the server-side query timeout.
 
 Admin mode is **not** permitted together with `--askme`; if you combine them, `flowsql` warns you and silently drops back to non-admin.
 
