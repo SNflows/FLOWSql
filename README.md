@@ -270,6 +270,21 @@ Treat the generated SQL as a draft. It is good at exploratory questions, but rea
 
 ---
 
+## Limiting query output
+
+`--limit` or `-l` limits the number of rows of all query outputs coming from `--query` or helper actions (`--askme`, `--getlc`, `--list-catalog`, etc.). It takes the form of `[offset,]limit`, where offset is optional. If the query already contains limit and/or offset, those are superseded by `--limit`.
+
+```bash
+flowsql --getlc 2021abc --limit 100
+flowsql --getlc 2021abc --limit 200,100
+```
+
+Also note, the API has a hard limit on server-side for non-admin queries to 10000 rows. 
+
+For long outputs, it is recommended to always put a query limit. And when running programmatically, do multiple calls of a shorter limit to fetch full result.
+
+---
+
 ## Using the API from Python
 
 `--pycode` prints a self-contained Python class that talks to the same API, with no dependency on this CLI:
