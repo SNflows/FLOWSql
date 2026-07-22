@@ -151,7 +151,15 @@ flowsql --listtables
 Lists the column names of a table.
 
 ```bash
-flowsql --listtable-cols targets
+flowsql --listtable-cols sites
+```
+
+### `--listtable-schema TABLE`
+
+Prints the schema / configuration of a table.
+
+```bash
+flowsql --listtable-schema sites
 ```
 
 ### `--getlc TARGET`
