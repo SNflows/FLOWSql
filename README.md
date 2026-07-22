@@ -80,6 +80,7 @@ The FLOWSql binary is capable of self-updating if there is a newer version avail
 ```bash
 flowsql --upgrade
 ```
+This will downloads and installs the latest release from [SNflows/FLOWSql](https://github.com/SNflows/FLOWSql).
 
 ---
 
@@ -166,7 +167,7 @@ Results are ordered by observation time and then filter.
 
 ### Reference catalog commands
 
-The FLOWS database stores reference stars in `refcat2`. These commands operate on all stars within a **24 arcminute radius** (same as website) of the named target's coordinates.
+The FLOWS database stores reference stars. These commands operate on all stars within a **24 arcminute radius** (same as website) of the named target's coordinates.
 
 **List catalog stars** — includes each star's angular distance from the target, sorted nearest first:
 
@@ -237,12 +238,53 @@ Example file:
 
 A few details worth knowing:
 
-- **`starid` is generated for you.** Any `starid` or `distance` column in the file is ignored — this means the output of `--catalog-list` can be fed back into `--catalog-add` directly. Generated IDs start with `500...` followed by 15 more digits containing timestamp and a 5-digit serial number.
+- **`starid` is generated for you.** Any `starid` or `distance` column in the file is ignored — this means the output of `--catalog-list` can be fed back into `--catalog-add` directly. Generated IDs start with `600...` followed by 15 more digits containing timestamp and a 5-digit serial number.
 - Blank lines are skipped; a maximum of 100,000 rows can be added in one invocation.
 - Column names are case-sensitive (so `J_mag`, not `j_mag`).
 - If there is any mismatched column name, the query would fail and `flowsql` would report the error with a list of possible names — that error almost always means a typo in your column header.
 
 The whole file becomes a single query, so it either all lands or none of it does. Validation happens locally first: a non-numeric value or a missing `ra`/`decl` fails with the offending line number before anything is sent.
+
+---
+
+## Managing user database access
+
+Database API access level of an user can be changed by `--promote-user` or `--demote-user` helper actions. `--user-status` only displays the current access level. All three require `--admin`.
+
+| Level | Access |
+|---|---|
+| `0` | No database access |
+| `1` | Readonly access |
+| `2` | Admin access to database |
+
+`--promote-user` raises the level by one step, `--demote-user` lowers it by one. The user can be identified **either by numeric userid or by email address** :
+
+```bash
+flowsql --admin --promote-user 42
+flowsql --admin --promote-user someone@example.com
+flowsql --admin --demote-user someone@example.com
+flowsql --admin --user-status someone@example.com
+```
+
+`--promote/demote-user` run looks the user up first, applies the change, and prints the outcome:
+
+```
+Jane Doe is now level 2 user with admin access to database.
+```
+
+`--user-status` does not change anything, just displays the current status
+
+```
+Jane Doe is level 1 user with readonly access to database.
+```
+
+A few details worth knowing:
+
+- If no user matches, you get `No user found matching "..."` and nothing changes.
+- **Levels are clamped to 0–2.** Promoting someone already at level 2 (or demoting someone at level 0) changes nothing and tells you so: `Jane Doe is already level 2 user with admin access to database, and cannot be promoted further.`
+- **Each invocation moves exactly one step.** To take a user from 0 to 2, run `--promote-user` twice.
+- ⚠️ **Don't demote yourself**. If you demote yourself down from admin, then you can no longer run these helper actions and another user have to promote you back.
+- ⚠️ **Promoting a user to level 2 gives them admin rights on the database**, including write access, access to user-sensitive tables, and the ability to change other users' levels. 
 
 ---
 
@@ -310,8 +352,7 @@ print(result['rows'])
 | Flag | Purpose |
 |---|---|
 | `--examples` | Prints a short list of example invocations |
-| `--upgrade` | Downloads and installs the latest release from [SNflows/FLOWSql](https://github.com/SNflows/FLOWSql) |
-| `--url URL` | Overrides the API endpoint (default `https://flows.phys.au.dk/api/sqlquery.php`) |
+| `--url URL` | Overrides the default API endpoint |
 | `-h`, `--help` | Full flag reference |
 
 `--url` is only needed if you are pointed at a staging or mirror deployment; the default is correct for normal use.
@@ -338,4 +379,8 @@ flowsql --admin --catalog-delete 2021abc --catalog-filter-custom
 
 # Ask in English
 flowsql --askme "how many targets are in the flows project?"
+
+# User database access (admin only)
+flowsql --admin --promote-user someone@example.com
+flowsql --admin --demote-user 42
 ```
