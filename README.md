@@ -63,7 +63,7 @@ and add `FLOWS_API_KEY` with your key as the value under the **User variables** 
 
 This will print command line help
 ```bash
-flowswl -h
+flowsql -h
 ```
 
 This will connect to the database and run a simple query confirming `FLOWS_API_KEY` environment variable has been setup correctly.
@@ -192,7 +192,7 @@ This query is heavy enough that it can hit the server's timeout; if it does, add
 flowsql --admin --catalog-delete 2021abc
 ```
 
-**Filter to custom stars only** — `--catalog-filter-custom` applies to both list and delete, and restricts the operation to stars in the custom-star ID range (`starid` between 5×10¹⁷ and 6×10¹⁷), i.e. those added via `--catalog-add` rather than coming from the original reference catalog. This is the safe way to undo your own additions without touching survey data:
+**Filter to custom stars only** — `--catalog-filter-custom` applies to both list and delete, and restricts the operation to stars in the custom-star ID range (`starid` between 6×10¹⁷ and 7×10¹⁷), i.e. those added via `--catalog-add` rather than coming from the original reference catalog. This is the safe way to undo your own additions without touching survey data:
 
 ```bash
 flowsql --catalog-list 2021abc --catalog-filter-custom
@@ -255,9 +255,10 @@ The whole file becomes a single query, so it either all lands or none of it does
 
 ---
 
-## Managing user database access
+## Managing users (admin functions)
 
-Database API access level of an user can be changed by `--promote-user` or `--demote-user` helper actions. `--user-status` only displays the current access level. All three require `--admin`.
+### Managing database access level for users
+Database API access level of an user can be changed by `--promote-user` or `--demote-user` helper actions. `--user-status` only displays the current access level. `--refresh-api-key` regenerates a user's API key. All of these require `--admin`.
 
 | Level | Access |
 |---|---|
@@ -274,7 +275,7 @@ flowsql --admin --demote-user someone@example.com
 flowsql --admin --user-status someone@example.com
 ```
 
-`--promote/demote-user` run looks the user up first, applies the change, and prints the outcome:
+`--promote-user` and `--demote-user` look the user up first, apply the change, and print the outcome:
 
 ```
 Jane Doe is now level 2 user with admin access to database.
@@ -283,7 +284,7 @@ Jane Doe is now level 2 user with admin access to database.
 `--user-status` does not change anything, just displays the current status
 
 ```
-Jane Doe is level 1 user with readonly access to database.
+Jane Doe is level 1 user with readonly access.
 ```
 
 A few details worth knowing:
@@ -291,8 +292,25 @@ A few details worth knowing:
 - If no user matches, you get `No user found matching "..."` and nothing changes.
 - **Levels are clamped to 0–2.** Promoting someone already at level 2 (or demoting someone at level 0) changes nothing and tells you so: `Jane Doe is already level 2 user with admin access to database, and cannot be promoted further.`
 - **Each invocation moves exactly one step.** To take a user from 0 to 2, run `--promote-user` twice.
-- ⚠️ **Don't demote yourself**. If you demote yourself down from admin, then you can no longer run these helper actions and another user have to promote you back.
+- ⚠️ **Don't demote yourself**. If you demote yourself down from admin, then you can no longer run these helper actions and another admin level user have to promote you back.
 - ⚠️ **Promoting a user to level 2 gives them admin rights on the database**, including write access, access to user-sensitive tables, and the ability to change other users' levels. 
+
+### Regenerating a user's API key
+
+`--refresh-api-key` generates and updates the user with a new 32 character long API key and prints it. User can also retrieve the API key trough FLOWS website. The user is identified the same way as above, by numeric userid or email address. Requires `--admin`.
+
+```bash
+flowsql --admin --refresh-api-key someone@example.com
+```
+
+```
+New API key for Jane Doe: 3f2c9a0e8b7d4c1f6a5e2d9b8c7a6f10
+The previous API key no longer works.
+```
+
+- The old key stops working immediately. So, the affected user need to update their `FLOWS_API_KEY`.
+- ⚠️ **Refreshing your own key** invalidates the key you are running `FLOWSql` with. Update your `FLOWS_API_KEY` with the printed key before running anything else.
+- If the userid or email matches more than one user, nothing is changed, and warning is shown. The same check applies to `--promote-user`, `--demote-user` and `--user-status`.
 
 ---
 
@@ -322,7 +340,7 @@ Treat the generated SQL as a draft. It is good at exploratory questions, but rea
 
 ## Limiting query output
 
-`--limit` or `-l` limits the number of rows of all query outputs coming from `--query` or helper actions (`--askme`, `--getlc`, `--list-catalog`, etc.). It takes the form of `[offset,]limit`, where offset is optional. If the query already contains limit and/or offset, those are superseded by `--limit`.
+`--limit` or `-l` limits the number of rows of all query outputs coming from `--query` or helper actions (`--askme`, `--getlc`, `--catalog-list`, etc.). It takes the form of `[offset,]limit`, where offset is optional. If the query already contains limit and/or offset, those are superseded by `--limit`.
 
 ```bash
 flowsql --getlc 2021abc --limit 100
@@ -388,7 +406,8 @@ flowsql --admin --catalog-delete 2021abc --catalog-filter-custom
 # Ask in English
 flowsql --askme "how many targets are in the flows project?"
 
-# User database access (admin only)
+# Database users (admin only)
 flowsql --admin --promote-user someone@example.com
 flowsql --admin --demote-user 42
+flowsql --admin --refresh-api-key someone@example.com
 ```
